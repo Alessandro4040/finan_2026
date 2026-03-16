@@ -1,5 +1,5 @@
 // Versão atualizada para forçar o carregamento da tela de login
-const CACHE_NAME = 'financas-v12';
+const CACHE_NAME = 'financas-v13';
 const assets = ['./', './index.html', './app.js', './manifest.json'];
 
 self.addEventListener('install', e => {
