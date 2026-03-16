@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Finanças Seguras</title>
+    <title>Finanças Pro</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2488/2488749.png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -14,115 +12,76 @@
         @media (prefers-color-scheme: dark) { :root { --bg: #121212; --card: #1e1e1e; --txt: #e0e0e0; } }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; }
         body { background: var(--bg); color: var(--txt); padding: 15px; padding-bottom: 100px; }
-        .container { max-width: 500px; margin: 0 auto; }
-        
-        #loginScreen { position: fixed; inset: 0; background: var(--bg); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
-        .login-box { background: var(--card); padding: 30px; border-radius: 20px; text-align: center; width: 100%; max-width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .login-box img { width: 80px; margin-bottom: 15px; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .status { font-size: 12px; padding: 5px 10px; border-radius: 20px; font-weight: bold; }
-        .online { background: #dcfce7; color: #166534; }
-        .offline { background: #fee2e2; color: #991b1b; }
-
         .card-saldo { background: var(--p); color: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,123,255,0.3); }
-        .resumo-contas { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; font-size: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
-        .busca-container { margin-bottom: 15px; }
-        #busca { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; background: var(--card); color: var(--txt); }
-
+        .resumo-contas { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; font-size: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .item { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
-        .mini-foto { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: #eee; cursor: pointer; }
-        .info { flex: 1; }
-        .tag { font-size: 10px; padding: 2px 6px; border-radius: 5px; background: #eee; color: #666; font-weight: bold; margin-top: 4px; display: inline-block; }
-        
-        .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); display: flex; justify-content: space-around; padding: 15px; border-top: 1px solid #ddd; }
-        .tab { border: none; background: none; font-size: 12px; color: #888; text-align: center; }
+        .mini-foto { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: #eee; }
+        .tag { font-size: 10px; padding: 2px 6px; border-radius: 5px; background: rgba(0,123,255,0.1); color: var(--p); font-weight: bold; }
+        .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); display: flex; justify-content: space-around; padding: 15px; border-top: 1px solid rgba(0,0,0,0.1); }
+        .tab { border: none; background: none; font-size: 12px; color: #888; }
         .tab.active { color: var(--p); font-weight: bold; }
-
-        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: var(--card); padding: 20px; border-radius: 20px; z-index: 1000; display: none; }
-        .modal.active { display: block; }
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index: 999; display: none; }
-        .overlay.active { display: flex; justify-content: center; align-items: center; }
-        
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index: 1000; display: none; align-items: center; justify-content: center; }
+        .overlay.active { display: flex; }
+        .modal { background: var(--card); padding: 20px; border-radius: 20px; width: 90%; max-width: 400px; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; background: var(--card); color: var(--txt); }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; }
-        .btn-save { background: var(--s); color: white; }
-        .btn-cancel { background: #eee; color: #333; }
-
-        #zoomOverlay img { max-width: 95%; max-height: 90%; border-radius: 10px; }
-        #view-grafico { background: var(--card); padding: 20px; border-radius: 20px; display: none; margin-bottom: 20px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        #zoomOverlay img { max-width: 95%; max-height: 80%; border-radius: 10px; transition: transform 0.3s; }
     </style>
 </head>
 <body>
-    <div id="loginScreen">
-        <div class="login-box">
-            <img src="https://cdn-icons-png.flaticon.com/512/2488/2488749.png" alt="Logo">
-            <h3>Bem-vindo</h3>
-            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Digite sua senha para acessar</p>
-            <input type="password" id="inputSenha" placeholder="Sua Senha Mestra">
-            <p id="loginErro" style="color: red; font-size: 12px; display: none;">Senha incorreta. Tente novamente.</p>
-            <button class="btn btn-save" onclick="fazerLogin()">Entrar</button>
-        </div>
-    </div>
-
-    <div class="container" id="appMain" style="display: none;">
-        <div class="header">
-            <input type="month" id="filtroMes" style="width: 140px; margin: 0;">
-            <div id="statusLabel" class="status online">🌐 Online</div>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+            <input type="month" id="filtroMes" style="width: 150px; margin: 0;">
+            <div id="statusLabel" style="font-size: 12px; padding: 5px 10px; border-radius: 15px; background: #eee;">🌐 Verificando...</div>
         </div>
 
         <div id="view-resumo">
             <div class="card-saldo">
-                <small>Saldo Total</small>
+                <small>Saldo Geral</small>
                 <h1 id="saldoTotal">R$ 0,00</h1>
-                <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:14px;">
-                    <span>📈 <span id="totalRec">R$ 0</span></span>
-                    <span>📉 <span id="totalDes">R$ 0</span></span>
+                <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                    <span>📈 <small id="totalRec">R$ 0</small></span>
+                    <span>📉 <small id="totalDes">R$ 0</small></span>
                 </div>
             </div>
 
             <div class="resumo-contas" id="resumoContas">
                 </div>
 
-            <div class="busca-container">
-                <input type="search" id="busca" placeholder="🔍 Buscar lançamento..." oninput="carregarLocal()">
-            </div>
-
+            <input type="search" id="busca" placeholder="🔍 Buscar por descrição ou categoria..." style="margin-bottom: 15px;">
             <div id="listaRecentes"></div>
-            <button id="btnExportar" class="btn btn-cancel">📥 Exportar CSV</button>
         </div>
 
-        <div id="view-grafico">
-            <h3 style="text-align: center; margin-bottom: 15px;">Despesas por Categoria</h3>
+        <div id="view-grafico" style="display:none; background: var(--card); padding: 15px; border-radius: 20px;">
             <canvas id="meuGrafico"></canvas>
         </div>
     </div>
 
     <nav class="nav-bottom">
         <button class="tab active" id="tabResumo">🏠<br>Início</button>
-        <button id="tabAdd" style="border:none; background:var(--p); color:white; width:50px; height:50px; border-radius:50%; font-size:24px; margin-top:-25px; box-shadow:0 4px 10px rgba(0,123,255,0.5)">+</button>
+        <button id="tabAdd" style="background:var(--p); color:white; width:50px; height:50px; border-radius:50%; border:none; font-size:24px; margin-top:-25px;">+</button>
         <button class="tab" id="tabGrafico">📈<br>Gráfico</button>
     </nav>
 
-    <div class="overlay" id="overlay"></div>
-    <div class="modal" id="modalForm">
-        <h4 id="formTitle">Novo Lançamento</h4>
-        <select id="tipo"><option value="Despesa">Despesa</option><option value="Receita">Receita</option></select>
-        <select id="origem">
-            <option value="Dinheiro">💵 Dinheiro</option>
-            <option value="Banco">🏦 Banco / PIX</option>
-            <option value="Cartão">💳 Cartão de Crédito</option>
-        </select>
-        <input type="date" id="data">
-        <input type="text" id="categoria" placeholder="Categoria (Ex: Mercado)">
-        <input type="text" id="descricao" placeholder="Descrição">
-        <input type="number" id="valor" step="0.01" placeholder="Valor R$">
-        <img id="imgPreview" style="width:100%; max-height:120px; object-fit:cover; border-radius:10px; margin:10px 0; display:none">
-        <button class="btn btn-cancel" onclick="document.getElementById('inputFoto').click()">📸 Foto</button>
-        <input type="file" id="inputFoto" accept="image/*" style="display:none">
-        <button class="btn btn-save" id="btnSalvar">Salvar</button>
-        <button class="btn btn-cancel" onclick="fecharTudo()">Cancelar</button>
+    <div class="overlay" id="overlay">
+        <div class="modal" id="modalForm">
+            <h4 id="formTitle">Novo Item</h4>
+            <select id="tipo"><option value="Despesa">Despesa</option><option value="Receita">Receita</option></select>
+            <select id="origem">
+                <option value="Dinheiro">💵 Dinheiro</option>
+                <option value="Banco">🏦 Banco / PIX</option>
+                <option value="Cartão">💳 Cartão de Crédito</option>
+            </select>
+            <input type="date" id="data">
+            <input type="text" id="categoria" placeholder="Categoria">
+            <input type="text" id="descricao" placeholder="Descrição">
+            <input type="number" id="valor" step="0.01" placeholder="Valor R$">
+            <img id="imgPreview" style="width:100%; max-height:150px; object-fit:cover; display:none; border-radius:10px; margin: 10px 0;">
+            <button class="btn" onclick="document.getElementById('inputFoto').click()" style="background:#eee">📸 Foto</button>
+            <input type="file" id="inputFoto" accept="image/*" style="display:none">
+            <button class="btn" id="btnSalvar" style="background:var(--s); color:white">Salvar</button>
+            <button class="btn" onclick="fecharTudo()" style="background:#eee">Cancelar</button>
+        </div>
     </div>
 
     <div class="overlay" id="zoomOverlay" onclick="fecharZoom()">
