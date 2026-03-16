@@ -1,29 +1,35 @@
-// Versão atualizada para forçar o carregamento da tela de login
-const CACHE_NAME = 'financas-v13';
-const assets = ['./', './index.html', './app.js', './manifest.json'];
+const CACHE_NAME = 'financas-v15';
+const urlsToCache = [
+  './',
+  './index.html',
+  './app.js',
+  './manifest.json',
+  'https://cdn.jsdelivr.net/npm/chart.js'
+];
 
-self.addEventListener('install', e => {
-    self.skipWaiting(); 
-    e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(assets)));
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
+  );
+  self.skipWaiting();
 });
 
-self.addEventListener('activate', e => {
-    e.waitUntil(
-        caches.keys().then(keys => {
-            return Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
-        })
-    );
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      );
+    })
+  );
+  self.clients.claim();
 });
 
-self.addEventListener('fetch', e => {
-    if (e.request.method !== 'GET' || e.request.url.includes('script.google.com')) return;
-
-    e.respondWith(
-        fetch(e.request).then(response => {
-            return caches.open(CACHE_NAME).then(cache => {
-                cache.put(e.request, response.clone());
-                return response;
-            });
-        }).catch(() => caches.match(e.request))
-    );
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => response || fetch(event.request))
+  );
 });
