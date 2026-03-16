@@ -3,8 +3,8 @@ const DB_NAME = 'financas_v105';
 const STORE = 'dados';
 let db, chartInstance = null, lancamentos = [], fotoBase64 = null, tokenUsuario = "";
 let mesAtual = new Date().toISOString().substring(0, 7);
+let escalaZoom = 1;
 
-// INICIALIZAÇÃO E LOGIN
 window.onload = () => {
     tokenUsuario = localStorage.getItem('app_token');
     if(tokenUsuario) {
@@ -58,12 +58,12 @@ function atualizarTela() {
     filtrados.sort((a,b) => b.data.localeCompare(a.data)).forEach(item => {
         const v = parseFloat(item.valor) || 0;
         const ori = item.origem || 'Dinheiro';
-        if (item.tipo === 'Receita') { rec += v; contas[ori] += v; }
-        else { desp += v; contas[ori] -= v; }
+        if (item.tipo === 'Receita') { rec += v; if(contas[ori] !== undefined) contas[ori] += v; }
+        else { desp += v; if(contas[ori] !== undefined) contas[ori] -= v; }
 
         let imgTag = item.foto && item.foto.length > 50 ? 
             `<img class="mini-foto" src="${item.foto}" onclick="abrirZoom('${item.foto}')">` : 
-            `<div class="mini-foto"></div>`;
+            `<div class="mini-foto" style="display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">S/ Foto</div>`;
         
         lista.innerHTML += `
             <div class="item">
@@ -84,30 +84,26 @@ function atualizarTela() {
     if (document.getElementById('view-grafico').style.display === 'block') renderGrafico();
 }
 
-// ZOOM E GRÁFICO
+// NOVO ZOOM COMPATÍVEL COM PWA NO IPHONE
 function abrirZoom(src) {
-    document.getElementById('zoomedImg').src = src;
+    escalaZoom = 1;
+    const img = document.getElementById('zoomedImg');
+    img.src = src;
+    img.style.transform = `scale(${escalaZoom})`;
     document.getElementById('zoomOverlay').classList.add('active');
-    document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
 }
+
+function aumentarZoom(event) {
+    event.stopPropagation(); // Evita que feche ao tocar na foto
+    escalaZoom += 0.5;
+    if (escalaZoom > 2.5) escalaZoom = 1; // Volta ao normal depois de 2.5x
+    document.getElementById('zoomedImg').style.transform = `scale(${escalaZoom})`;
+}
+
 function fecharZoom() {
     document.getElementById('zoomOverlay').classList.remove('active');
-    document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
 }
 
-function renderGrafico() {
-    const filtrados = lancamentos.filter(i => i.data.startsWith(mesAtual) && i.tipo === 'Despesa');
-    const caps = {};
-    filtrados.forEach(i => caps[i.categoria] = (caps[i.categoria] || 0) + i.valor);
-    const ctx = document.getElementById('meuGrafico').getContext('2d');
-    if (chartInstance) chartInstance.destroy();
-    chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: Object.keys(caps), datasets: [{ data: Object.values(caps), backgroundColor: ['#007bff','#28a745','#ffc107','#dc3545','#6610f2'] }] }
-    });
-}
-
-// SINCRONIZAÇÃO E SALVAR
 async function sincronizar() {
     if (!navigator.onLine) return;
     document.getElementById('statusLabel').innerText = "🔄 Sincronizando...";
@@ -150,7 +146,29 @@ document.getElementById('btnSalvar').onclick = () => {
     tx.oncomplete = () => { fecharTudo(); carregarLocal(); sincronizar(); };
 };
 
-// UI AUXILIAR
+function excluir(id) {
+    if(!confirm("Excluir?")) return;
+    const tx = db.transaction(STORE, 'readwrite');
+    const store = tx.objectStore(STORE);
+    store.get(id).onsuccess = e => {
+        let item = e.target.result;
+        item.excluido = true; item.sinc = 0;
+        store.put(item).onsuccess = () => { carregarLocal(); sincronizar(); };
+    };
+}
+
+function renderGrafico() {
+    const filtrados = lancamentos.filter(i => i.data.startsWith(mesAtual) && i.tipo === 'Despesa');
+    const caps = {};
+    filtrados.forEach(i => caps[i.categoria] = (caps[i.categoria] || 0) + i.valor);
+    const ctx = document.getElementById('meuGrafico').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: Object.keys(caps), datasets: [{ data: Object.values(caps), backgroundColor: ['#007bff','#28a745','#ffc107','#dc3545','#6610f2'] }] }
+    });
+}
+
 function mudarTab(view, btn) {
     document.getElementById('view-resumo').style.display = view === 'resumo' ? 'block' : 'none';
     document.getElementById('view-grafico').style.display = view === 'grafico' ? 'block' : 'none';
