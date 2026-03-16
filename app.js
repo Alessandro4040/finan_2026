@@ -1,4 +1,4 @@
-const API_URL = 'SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyIPr8SANb5N5ag6JI-M7N5oPaX-c8Zef8V_SUTMfIazaXqZziZ7AGj-AHatRiU9a-J/exec';
 const DB_NAME = 'financas_v102';
 const STORE = 'dados';
 
