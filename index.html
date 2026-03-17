@@ -11,67 +11,35 @@
         @media (prefers-color-scheme: dark) { :root { --bg: #121212; --card: #1e1e1e; --txt: #e0e0e0; } }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
         body { background: var(--bg); color: var(--txt); padding: 15px; padding-bottom: 100px; }
-        
         #telaLogin { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 30px; }
         .card-saldo { background: var(--p); color: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; }
         .resumo-contas { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; }
         .item { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
         .mini-foto { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: #eee; cursor: pointer; }
         .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); display: flex; justify-content: space-around; padding: 15px; border-top: 1px solid rgba(0,0,0,0.1); }
-        .tab { border: none; background: none; font-size: 12px; color: #888; }
-        .tab.active { color: var(--p); font-weight: bold; }
-        
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: none; align-items: center; justify-content: center; flex-direction: column;}
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .overlay.active { display: flex; }
-        .modal { background: var(--card); padding: 20px; border-radius: 20px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto;}
-        
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; background: var(--card); color: var(--txt); }
+        .modal { background: var(--card); padding: 20px; border-radius: 20px; width: 90%; max-width: 400px; }
         .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
-        
-        /* Ajustes do Zoom Novo */
-        #zoomOverlay img { max-width: 100%; max-height: 70vh; border-radius: 10px; transition: transform 0.2s ease-out; }
-        .zoom-hint { color: white; margin-top: 15px; font-size: 14px; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; }
+        #zoomOverlay img { max-width: 100%; max-height: 70vh; border-radius: 10px; transition: transform 0.2s; }
     </style>
 </head>
 <body>
-
     <div id="telaLogin">
         <h2>🔒 Acesso Restrito</h2>
-        <input type="password" id="inputSenha" placeholder="Senha Corretora">
+        <input type="password" id="inputSenha" placeholder="Senha Corretora" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd;">
         <button class="btn" onclick="verificarSenha()" style="background: var(--p); color: white;">Entrar</button>
     </div>
-
-    <div class="container" id="conteudoApp" style="display:none">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-            <input type="month" id="filtroMes" style="width: 150px; margin: 0;">
-            <div id="statusLabel" style="font-size: 12px; padding: 5px 10px; border-radius: 15px; background: #eee;">🌐 Online</div>
+    <div id="conteudoApp" style="display:none">
+        <div class="card-saldo">
+            <h1 id="saldoTotal">R$ 0,00</h1>
         </div>
-
-        <div id="view-resumo">
-            <div class="card-saldo">
-                <small>Saldo Geral</small>
-                <h1 id="saldoTotal">R$ 0,00</h1>
-                <div style="display:flex; justify-content:space-between; margin-top:10px;">
-                    <span>📈 <small id="totalRec">R$ 0</small></span>
-                    <span>📉 <small id="totalDes">R$ 0</small></span>
-                </div>
-            </div>
-            <div class="resumo-contas" id="resumoContas"></div>
-            <input type="search" id="busca" placeholder="🔍 Buscar..." style="margin-bottom: 15px;">
-            <div id="listaRecentes"></div>
-        </div>
-
-        <div id="view-grafico" style="display:none; background: var(--card); padding: 15px; border-radius: 20px;">
-            <canvas id="meuGrafico"></canvas>
-        </div>
+        <div class="resumo-contas" id="resumoContas"></div>
+        <div id="listaRecentes"></div>
     </div>
-
     <nav class="nav-bottom" id="navBottom" style="display:none">
-        <button class="tab active" onclick="mudarTab('resumo', this)">🏠<br>Início</button>
-        <button onclick="abrirModal()" style="background:var(--p); color:white; width:50px; height:50px; border-radius:50%; border:none; font-size:24px; margin-top:-25px;">+</button>
-        <button class="tab" onclick="mudarTab('grafico', this)">📈<br>Gráfico</button>
+        <button onclick="abrirModal()" style="background:var(--p); color:white; width:50px; height:50px; border-radius:50%; border:none; font-size:24px;">+</button>
     </nav>
-
     <div class="overlay" id="overlay">
         <div class="modal">
             <h4>Novo Lançamento</h4>
@@ -81,23 +49,17 @@
                 <option value="Banco">🏦 Banco / PIX</option>
                 <option value="Cartão">💳 Cartão de Crédito</option>
             </select>
-            <input type="date" id="data">
-            <input type="text" id="categoria" placeholder="Categoria">
-            <input type="text" id="descricao" placeholder="Descrição">
-            <input type="number" id="valor" step="0.01" placeholder="Valor R$">
-            <img id="imgPreview" style="width:100%; max-height:150px; object-fit:cover; display:none; border-radius:10px; margin: 10px 0;">
-            <button class="btn" onclick="document.getElementById('inputFoto').click()" style="background:#eee; color:#333;">📸 Adicionar Foto</button>
-            <input type="file" id="inputFoto" accept="image/*" style="display:none">
+            <input type="date" id="data" style="width:100%; padding:8px; margin:5px 0;">
+            <input type="text" id="categoria" placeholder="Categoria" style="width:100%; padding:8px; margin:5px 0;">
+            <input type="text" id="descricao" placeholder="Descrição" style="width:100%; padding:8px; margin:5px 0;">
+            <input type="number" id="valor" placeholder="Valor R$" style="width:100%; padding:8px; margin:5px 0;">
             <button class="btn" id="btnSalvar" style="background:var(--s); color:white">Salvar</button>
-            <button class="btn" onclick="fecharTudo()" style="background:#eee; color:#333;">Cancelar</button>
+            <button class="btn" onclick="fecharTudo()">Cancelar</button>
         </div>
     </div>
-
     <div class="overlay" id="zoomOverlay" onclick="fecharZoom()">
         <img id="zoomedImg" onclick="aumentarZoom(event)">
-        <div class="zoom-hint">👆 Toque na foto para ampliar</div>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>
